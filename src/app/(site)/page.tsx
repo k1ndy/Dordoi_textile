@@ -5,9 +5,6 @@ import { ProductCard } from "@/components/product-card";
 import { ArrowIcon, WhatsAppIcon } from "@/components/icons";
 import { waLink } from "@/lib/links";
 
-// ISR: страница кэшируется и пере-генерируется не чаще раза в 60 сек.
-export const revalidate = 60;
-
 const ADVANTAGES = [
   { t: "Прямые поставки с Дордоя", d: "Берём товар напрямую у производителей рынка — без лишних наценок." },
   { t: "Опт и розница", d: "Покупайте от 1 штуки или крупными партиями по оптовым ценам." },

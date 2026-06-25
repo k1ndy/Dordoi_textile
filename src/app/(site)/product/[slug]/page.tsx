@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { getProductBySlug, getProducts, getSettings } from "@/lib/data";
 import { ProductGallery } from "@/components/product-gallery";
@@ -8,14 +9,6 @@ import { ProductCard } from "@/components/product-card";
 import { LeadForm } from "@/components/lead-form";
 import { WhatsAppIcon, TelegramIcon, CheckIcon } from "@/components/icons";
 import { waLink, tgLink } from "@/lib/links";
-
-export const revalidate = 60;
-
-// Пред-рендер всех товаров на этапе сборки (отдаются с CDN, обновляются по ISR).
-export async function generateStaticParams() {
-  const products = await getProducts();
-  return products.map((p) => ({ slug: p.slug }));
-}
 
 type Params = { params: { slug: string } };
 
@@ -58,9 +51,11 @@ export default async function ProductPage({ params }: Params) {
     },
   };
 
+  const nonce = headers().get("x-nonce") ?? undefined;
+
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" nonce={nonce} dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="container-x py-8">
         <nav className="mb-6 text-sm text-ink-muted">

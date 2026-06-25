@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import type { Category, Lead, Product, SiteSettings } from "./types";
 import { mockCategories, mockLeads, mockProducts, mockSettings } from "./mock";
 import { createPublicSupabase } from "./supabase/public";
@@ -74,7 +75,9 @@ function mapLead(r: any): Lead {
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 // ── Публичные read-функции ──────────────────────────────────────────────────
-export async function getCategories(): Promise<Category[]> {
+// Кэшируются (unstable_cache, revalidate 60с): даже при динамическом рендере
+// (nonce-CSP) запросы к БД не повторяются на каждый заход.
+async function fetchCategories(): Promise<Category[]> {
   const sb = createPublicSupabase();
   if (sb) {
     const { data, error } = await sb
@@ -87,7 +90,7 @@ export async function getCategories(): Promise<Category[]> {
   return mockCategories.filter((c) => !c.hidden).sort((a, b) => a.order - b.order);
 }
 
-export async function getProducts(): Promise<Product[]> {
+async function fetchProducts(): Promise<Product[]> {
   const sb = createPublicSupabase();
   if (sb) {
     const { data, error } = await sb
@@ -100,7 +103,7 @@ export async function getProducts(): Promise<Product[]> {
   return mockProducts.filter((p) => !p.hidden);
 }
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+async function fetchProductBySlug(slug: string): Promise<Product | null> {
   const sb = createPublicSupabase();
   if (sb) {
     const { data, error } = await sb.from("products").select("*").eq("slug", slug).single();
@@ -110,7 +113,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   return mockProducts.find((p) => p.slug === slug) ?? null;
 }
 
-export async function getSettings(): Promise<SiteSettings> {
+async function fetchSettings(): Promise<SiteSettings> {
   const sb = createPublicSupabase();
   if (sb) {
     const { data } = await sb.from("settings").select("*").eq("id", 1).single();
@@ -144,5 +147,23 @@ export async function getLeads(): Promise<Lead[]> {
   }
   return mockLeads;
 }
+
+// Кэшированные публичные обёртки (revalidate 60с).
+export const getCategories = unstable_cache(fetchCategories, ["categories"], {
+  revalidate: 60,
+  tags: ["catalog"],
+});
+export const getProducts = unstable_cache(fetchProducts, ["products"], {
+  revalidate: 60,
+  tags: ["catalog"],
+});
+export const getProductBySlug = unstable_cache(fetchProductBySlug, ["product-by-slug"], {
+  revalidate: 60,
+  tags: ["catalog"],
+});
+export const getSettings = unstable_cache(fetchSettings, ["settings"], {
+  revalidate: 60,
+  tags: ["settings"],
+});
 
 export { isSupabaseConfigured };

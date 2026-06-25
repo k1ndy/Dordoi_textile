@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import { SiteProvider } from "@/components/providers";
+
+// Чтение nonce из заголовков переводит рендер в динамический режим —
+// это обязательно, чтобы Next.js подставил nonce в свои inline-скрипты под строгий CSP.
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
 
@@ -29,6 +33,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  headers().get("x-nonce"); // переводит рендер в динамику для корректной работы nonce-CSP
   return (
     <html lang="ru">
       <head>

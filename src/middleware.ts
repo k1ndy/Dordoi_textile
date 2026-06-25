@@ -2,21 +2,49 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from "./lib/supabase/config";
 
-// Защита всех маршрутов /admin/* — публичная часть и админка строго разделены.
+// Строгий Content-Security-Policy с одноразовым nonce на каждый запрос.
+// 'strict-dynamic' + nonce исключают необходимость 'unsafe-inline' в script-src.
+function buildCsp(nonce: string) {
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    // inline-стили нужны next/image (fill) и Tailwind-утилитам; для стилей это безопасно
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+    "frame-src 'self' https://www.openstreetmap.org https://openstreetmap.org",
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "object-src 'none'",
+    "upgrade-insecure-requests",
+  ].join("; ");
+}
+
 export async function middleware(req: NextRequest) {
+  const nonce = btoa(crypto.randomUUID());
+  const csp = buildCsp(nonce);
+
+  // Прокидываем nonce и CSP в запрос — Next.js подставит nonce в свои <script>.
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", csp);
+
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
+  res.headers.set("Content-Security-Policy", csp);
+
+  // ── Защита админки ──────────────────────────────────────────────
   const { pathname } = req.nextUrl;
-  if (pathname === "/admin/login") return NextResponse.next();
+  const guarded = pathname.startsWith("/admin") && pathname !== "/admin/login";
+  if (!guarded) return res;
 
   const loginUrl = new URL("/admin/login", req.url);
 
-  // Демо-режим (Supabase не настроен): доступ по cookie, выставляемой /api/admin/login
   if (!isSupabaseConfigured) {
-    const demo = req.cookies.get("admin_demo")?.value;
-    return demo === "1" ? NextResponse.next() : NextResponse.redirect(loginUrl);
+    return req.cookies.get("admin_demo")?.value === "1" ? res : NextResponse.redirect(loginUrl);
   }
 
-  // Боевой режим: проверка сессии Supabase
-  let res = NextResponse.next({ request: req });
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
@@ -27,12 +55,11 @@ export async function middleware(req: NextRequest) {
       },
     },
   });
-
   const { data } = await supabase.auth.getUser();
-  if (!data.user) return NextResponse.redirect(loginUrl);
-  return res;
+  return data.user ? res : NextResponse.redirect(loginUrl);
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  // CSP на все HTML-ответы; исключаем статические ассеты и оптимизатор картинок.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"],
 };
