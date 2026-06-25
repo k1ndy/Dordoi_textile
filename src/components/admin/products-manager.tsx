@@ -139,6 +139,10 @@ function ProductForm({ initial, categories, onCancel, onSave }: {
 }) {
   const [p, setP] = useState<Product>(initial);
   const [uploading, setUploading] = useState(false);
+  // Сырой текст для полей «через запятую» — чтобы запятые и пробелы не стирались при вводе.
+  const [sizesText, setSizesText] = useState(initial.sizes.join(", "));
+  const [colorsText, setColorsText] = useState(initial.colors.join(", "));
+  const [deliveryText, setDeliveryText] = useState(initial.deliveryCountries.join(", "));
   const set = (patch: Partial<Product>) => setP((prev) => ({ ...prev, ...patch }));
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -224,28 +228,28 @@ function ProductForm({ initial, categories, onCancel, onSave }: {
 
           <div>
             <label className="label">Размеры (через запятую)</label>
-            <input className="input" value={p.sizes.join(", ")} onChange={(e) => set({ sizes: splitList(e.target.value) })} placeholder="S, M, L, XL" />
+            <input className="input" value={sizesText} onChange={(e) => setSizesText(e.target.value)} placeholder="S, M, L, XL" />
           </div>
           <div>
             <label className="label">Цвета (через запятую)</label>
-            <input className="input" value={p.colors.join(", ")} onChange={(e) => set({ colors: splitList(e.target.value) })} placeholder="Чёрный, Белый" />
+            <input className="input" value={colorsText} onChange={(e) => setColorsText(e.target.value)} placeholder="Чёрный, Белый" />
           </div>
           <div className="sm:col-span-2">
             <label className="label">Страны доставки (через запятую)</label>
-            <input className="input" value={p.deliveryCountries.join(", ")} onChange={(e) => set({ deliveryCountries: splitList(e.target.value) })} />
+            <input className="input" value={deliveryText} onChange={(e) => setDeliveryText(e.target.value)} />
           </div>
 
           <div>
             <label className="label">Цена розница (сом)</label>
-            <input type="number" className="input" value={p.priceRetail} onChange={(e) => set({ priceRetail: Number(e.target.value) })} />
+            <input type="number" min={0} className="input" value={p.priceRetail || ""} onChange={(e) => set({ priceRetail: e.target.value === "" ? 0 : Number(e.target.value) })} placeholder="0" />
           </div>
           <div>
             <label className="label">Цена опт (сом)</label>
-            <input type="number" className="input" value={p.priceWholesale} onChange={(e) => set({ priceWholesale: Number(e.target.value) })} />
+            <input type="number" min={0} className="input" value={p.priceWholesale || ""} onChange={(e) => set({ priceWholesale: e.target.value === "" ? 0 : Number(e.target.value) })} placeholder="0" />
           </div>
           <div>
             <label className="label">Мин. заказ опт (шт)</label>
-            <input type="number" className="input" value={p.minWholesale} onChange={(e) => set({ minWholesale: Number(e.target.value) })} />
+            <input type="number" min={0} className="input" value={p.minWholesale || ""} onChange={(e) => set({ minWholesale: e.target.value === "" ? 0 : Number(e.target.value) })} placeholder="1" />
           </div>
 
           {/* Images */}
@@ -301,7 +305,13 @@ function ProductForm({ initial, categories, onCancel, onSave }: {
           <button
             onClick={() => {
               if (!p.title || !p.slug || !p.categorySlug) { alert("Заполните название, ссылку и категорию."); return; }
-              onSave(p);
+              // Разбиваем «через запятую» поля в массивы только при сохранении.
+              onSave({
+                ...p,
+                sizes: splitList(sizesText),
+                colors: splitList(colorsText),
+                deliveryCountries: splitList(deliveryText),
+              });
             }}
             className="btn-primary"
           >
