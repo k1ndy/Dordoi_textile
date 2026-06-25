@@ -12,10 +12,6 @@ export function ProductCard({ product, settings }: { product: Product; settings:
   const href = `/product/${product.slug}`;
   const waText = `Здравствуйте! Хочу узнать цену на «${product.title}» с сайта Dordoy Textile.`;
 
-  // Тизерная цена «от» = минимальная (оптовая) цена. Точная цена — на странице товара
-  // в зависимости от сценария. Розничную и оптовую цену вместе НЕ показываем.
-  const fromPrice = product.priceWholesale || product.priceRetail;
-
   return (
     <div className="card group flex flex-col overflow-hidden transition hover:shadow-lift">
       <Link href={href} className="relative block aspect-[4/5] overflow-hidden bg-cream-deep">
@@ -53,14 +49,9 @@ export function ProductCard({ product, settings }: { product: Product; settings:
         )}
 
         <div className="mt-auto pt-4">
-          <div className="flex items-end justify-between">
-            <div>
-              <p className="text-[11px] uppercase tracking-wide text-ink-muted">Цена</p>
-              <p className="font-display text-xl font-bold text-ink">от {price(fromPrice)}</p>
-            </div>
-            <p className="rounded-full bg-cream-deep px-2.5 py-1 text-[11px] font-semibold text-ink-soft">
-              Опт от {product.minWholesale} шт
-            </p>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-ink-muted">Цена</p>
+            <p className="font-display text-xl font-bold text-ink">{price(product.priceRetail)}</p>
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2">
