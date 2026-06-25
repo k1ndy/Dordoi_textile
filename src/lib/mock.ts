@@ -77,22 +77,31 @@ export const mockProducts: Product[] = [
 
 export const mockLeads: Lead[] = [
   {
-    id: "l1", type: "wholesale", status: "new", name: "Айбек", phone: "+996555112233",
-    messenger: "WhatsApp", country: "Кыргызстан", city: "Бишкек", category: "Футболки",
-    quantity: "500 шт", budget: "200 000 сом", comment: "Нужны базовые футболки на сезон.",
+    id: "l1", type: "wholesale_request", status: "new", name: "Айбек", phone: "+996555112233",
+    messenger: "WhatsApp", country: "Кыргызстан", city: "Бишкек", product: "Мужская футболка холодок",
+    quantity: "50 шт", details: { sizes: "46–54", colors: "белый, чёрный" },
+    comment: "Хочу узнать цену с доставкой.",
     createdAt: new Date(Date.now() - 3600_000).toISOString(),
   },
   {
-    id: "l2", type: "seller", status: "in_progress", name: "Мария", company: "MarMarket",
+    id: "l2", type: "marketplace_seller_request", status: "processing", name: "Мария", company: "MarMarket",
     phone: "+77011234567", messenger: "Telegram", country: "Казахстан", city: "Алматы",
-    sellChannel: "Wildberries / Kaspi", product: "Худи и костюмы", quantity: "1000+ шт",
-    needBranding: true, needLabelPack: true, comment: "Хочу отшить под свой бренд с биркой.",
+    details: { platform: "Wildberries", volume: "1000+ шт/мес", needContent: "Да" },
+    category: "Худи и костюмы", manager: "Нурлан",
+    comment: "Нужна подборка под WB.",
     createdAt: new Date(Date.now() - 86400_000).toISOString(),
   },
   {
-    id: "l3", type: "retail", status: "done", name: "Дмитрий", phone: "+79161234567",
+    id: "l3", type: "retail_order", status: "completed", name: "Дмитрий", phone: "+79161234567",
     country: "Россия", city: "Новосибирск", product: "Футболка Oversize Premium",
     size: "L", color: "Чёрный", quantity: "2 шт", comment: "Отправьте СДЭКом.",
     createdAt: new Date(Date.now() - 2 * 86400_000).toISOString(),
+  },
+  {
+    id: "l4", type: "manufacturing_request", status: "quote_sent", name: "Тимур", phone: "+998901234567",
+    messenger: "WhatsApp", country: "Узбекистан", city: "Ташкент",
+    details: { productType: "Худи оверсайз", fabric: "Футер 3-нитка", sizes: "S–XXL", hasLogo: "Да", needPrint: "Да", deadline: "1 месяц" },
+    quantity: "300 шт", comment: "Свой бренд, нужна вышивка логотипа.",
+    createdAt: new Date(Date.now() - 5 * 3600_000).toISOString(),
   },
 ];

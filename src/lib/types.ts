@@ -40,8 +40,28 @@ export interface Product {
   createdAt: string;
 }
 
-export type LeadType = "retail" | "wholesale" | "seller";
-export type LeadStatus = "new" | "in_progress" | "done" | "rejected";
+// 6 типов заявок под бизнес-сценарии.
+export type LeadType =
+  | "retail_order"
+  | "wholesale_request"
+  | "large_wholesale_request"
+  | "marketplace_seller_request"
+  | "manufacturing_request"
+  | "general_contact";
+
+// Единый набор статусов, покрывающий все воронки (розница/опт/селлеры/отшив).
+export type LeadStatus =
+  | "new"
+  | "contacted"
+  | "processing"
+  | "quote_sent"
+  | "negotiation"
+  | "prepaid"
+  | "paid"
+  | "in_production"
+  | "shipped"
+  | "completed"
+  | "rejected";
 
 export interface Lead {
   id: string;
@@ -60,9 +80,15 @@ export interface Lead {
   quantity?: string;
   budget?: string;
   sellChannel?: string; // где продаёт (для селлеров)
-  needBranding?: boolean; // отшив под бренд
-  needLabelPack?: boolean; // логотип / бирка / упаковка
+  needBranding?: boolean;
+  needLabelPack?: boolean;
   comment?: string;
+  // Сценарные доп-поля (площадка, ткань, лекала, логотип, сроки и т.д.)
+  details?: Record<string, string>;
+  // Работа менеджера
+  manager?: string;
+  managerNotes?: string;
+  lastContactAt?: string;
   createdAt: string;
 }
 

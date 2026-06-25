@@ -4,10 +4,8 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { getProductBySlug, getProducts, getSettings } from "@/lib/data";
 import { ProductGallery } from "@/components/product-gallery";
-import { Price } from "@/components/price";
 import { ProductCard } from "@/components/product-card";
-import { ProductBuyBox } from "@/components/product-buy-box";
-import { LeadForm } from "@/components/lead-form";
+import { ScenarioBuyBox } from "@/components/scenario-buy-box";
 import { CheckIcon } from "@/components/icons";
 
 type Params = { params: { slug: string } };
@@ -78,21 +76,9 @@ export default async function ProductPage({ params }: Params) {
             <h1 className="mt-4 font-display text-3xl font-bold sm:text-4xl">{product.title}</h1>
             <p className="mt-3 text-ink-soft">{product.description}</p>
 
-            {/* Цены */}
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <div className="card p-4">
-                <p className="text-xs uppercase tracking-wide text-ink-muted">Розница</p>
-                <Price amount={product.priceRetail} className="font-display text-2xl font-bold text-ink" />
-              </div>
-              <div className="card border-clay/30 bg-clay/5 p-4">
-                <p className="text-xs uppercase tracking-wide text-clay">Опт от {product.minWholesale} шт</p>
-                <Price amount={product.priceWholesale} className="font-display text-2xl font-bold text-clay" />
-              </div>
-            </div>
-
-            {/* Выбор размера/цвета/кол-ва + корзина */}
+            {/* Сценарий клиента: цена, форма и CTA зависят от выбора */}
             <div className="mt-6">
-              <ProductBuyBox product={product} settings={settings} />
+              <ScenarioBuyBox product={product} settings={settings} />
             </div>
 
             {/* Характеристики */}
@@ -121,17 +107,6 @@ export default async function ProductPage({ params }: Params) {
             </div>
           </div>
         </div>
-
-        {/* Форма заказа */}
-        <section id="order" className="mt-16 scroll-mt-24">
-          <div className="card p-6 sm:p-8">
-            <h2 className="font-display text-2xl font-bold">Оформить заказ</h2>
-            <p className="mt-1 text-sm text-ink-muted">Заполните форму — мы свяжемся с вами и согласуем доставку.</p>
-            <div className="mt-6">
-              <LeadForm type="retail" productName={product.title} />
-            </div>
-          </div>
-        </section>
 
         {/* Related */}
         {related.length > 0 && (

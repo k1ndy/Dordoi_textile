@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/page-hero";
-import { LeadForm } from "@/components/lead-form";
+import { ScenarioForm } from "@/components/scenario-form";
+import { CONTACT_FIELDS } from "@/lib/leads";
 import { getSettings } from "@/lib/data";
 import { waLink, tgLink, igLink } from "@/lib/links";
 import { WhatsAppIcon, TelegramIcon, InstagramIcon } from "@/components/icons";
@@ -52,7 +53,7 @@ export default async function ContactsPage() {
           <h2 className="font-display text-2xl font-bold">Написать нам</h2>
           <p className="mt-1 text-sm text-ink-muted">Оставьте заявку — свяжемся с вами по указанным контактам.</p>
           <div className="mt-6">
-            <LeadForm type="retail" />
+            <ScenarioForm leadType="general_contact" fields={CONTACT_FIELDS} submitLabel="Отправить" />
           </div>
         </div>
       </section>

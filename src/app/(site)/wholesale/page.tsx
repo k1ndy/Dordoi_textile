@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/page-hero";
-import { LeadForm } from "@/components/lead-form";
+import { ScenarioForm } from "@/components/scenario-form";
+import { LARGE_WHOLESALE_FIELDS } from "@/lib/leads";
 
 export const metadata: Metadata = {
   title: "Одежда оптом из Кыргызстана (Бишкек, Дордой)",
@@ -58,9 +59,9 @@ export default function WholesalePage() {
 
         <div className="card p-6 sm:p-8">
           <h2 className="font-display text-2xl font-bold">Заявка на оптовый заказ</h2>
-          <p className="mt-1 text-sm text-ink-muted">Заполните форму — менеджер свяжется с вами и подберёт товар.</p>
+          <p className="mt-1 text-sm text-ink-muted">Цена зависит от количества и направления доставки. Менеджер пришлёт актуальный прайс.</p>
           <div className="mt-6">
-            <LeadForm type="wholesale" />
+            <ScenarioForm leadType="large_wholesale_request" fields={LARGE_WHOLESALE_FIELDS} submitLabel="Получить прайс" />
           </div>
         </div>
       </section>

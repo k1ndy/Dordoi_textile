@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { createServiceSupabase } from "@/lib/supabase/server";
 import type { LeadType } from "@/lib/types";
+import { LEAD_COLUMN_FIELDS, LEAD_TYPE_LABEL, DETAIL_LABELS } from "@/lib/leads";
 
 // Простой in-memory rate-limit (на инстанс) — базовая защита от спама.
 const hits = new Map<string, { count: number; ts: number }>();
-const WINDOW = 60_000; // 1 минута
+const WINDOW = 60_000;
 const MAX = 5;
 
 function rateLimited(ip: string) {
@@ -18,49 +19,62 @@ function rateLimited(ip: string) {
   return rec.count > MAX;
 }
 
-const VALID_TYPES: LeadType[] = ["retail", "wholesale", "seller"];
+const VALID_TYPES: LeadType[] = [
+  "retail_order", "wholesale_request", "large_wholesale_request",
+  "marketplace_seller_request", "manufacturing_request", "general_contact",
+];
 
-const TYPE_LABEL: Record<LeadType, string> = {
-  retail: "🛍️ Розничный заказ",
-  wholesale: "📦 Оптовая заявка",
-  seller: "🏭 Заявка от селлера",
-};
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
 
-async function notifyTelegram(lead: Record<string, unknown>) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+async function notifyTelegram(payload: any, details: Record<string, string>) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) return;
 
-  const t = lead.type as LeadType;
+  const t = payload.type as LeadType;
+  const detailLines = Object.entries(details).map(
+    ([k, v]) => `${DETAIL_LABELS[k] ?? k}: ${v}`
+  );
   const lines = [
-    `<b>${TYPE_LABEL[t] ?? "Новая заявка"}</b>`,
-    lead.name && `👤 Имя: ${lead.name}`,
-    lead.phone && `📞 Телефон: ${lead.phone}`,
-    lead.messenger && `💬 Мессенджер: ${lead.messenger}`,
-    lead.company && `🏢 Компания: ${lead.company}`,
-    (lead.country || lead.city) && `📍 ${[lead.country, lead.city].filter(Boolean).join(", ")}`,
-    lead.product && `🧥 Товар: ${lead.product}`,
-    lead.category && `🗂️ Категория: ${lead.category}`,
-    lead.size && `📏 Размер: ${lead.size}`,
-    lead.color && `🎨 Цвет: ${lead.color}`,
-    lead.quantity && `🔢 Количество: ${lead.quantity}`,
-    lead.budget && `💰 Бюджет: ${lead.budget}`,
-    lead.sellChannel && `🛒 Где продаёт: ${lead.sellChannel}`,
-    lead.needBranding && `🏷️ Нужен отшив под бренд`,
-    lead.needLabelPack && `📦 Нужны бирка / упаковка`,
-    lead.comment && `📝 Комментарий: ${lead.comment}`,
+    `<b>Новая заявка с сайта Dordoi Textile</b>`,
+    ``,
+    `Тип: ${LEAD_TYPE_LABEL[t] ?? t}`,
+    payload.name && `Клиент: ${payload.name}`,
+    payload.company && `Компания: ${payload.company}`,
+    (payload.country || payload.city) && `📍 ${[payload.country, payload.city].filter(Boolean).join(", ")}`,
+    payload.product && `Товар: ${payload.product}`,
+    payload.category && `Категория: ${payload.category}`,
+    payload.quantity && `Количество: ${payload.quantity}`,
+    payload.budget && `Бюджет: ${payload.budget}`,
+    ...detailLines,
+    payload.phone && `Контакт: ${payload.phone}`,
+    payload.messenger && `Мессенджер: ${payload.messenger}`,
+    payload.comment && `Комментарий: ${payload.comment}`,
   ].filter(Boolean);
+
+  const phoneDigits = String(payload.phone ?? "").replace(/[^\d]/g, "");
+  const buttons: { text: string; url: string }[][] = [];
+  if (phoneDigits) buttons.push([{ text: "💬 Написать клиенту", url: `https://wa.me/${phoneDigits}` }]);
+  if (SITE_URL) buttons.push([{ text: "📋 Открыть в админке", url: `${SITE_URL}/admin/leads` }]);
 
   try {
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text: lines.join("\n"), parse_mode: "HTML" }),
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: lines.join("\n"),
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+        ...(buttons.length ? { reply_markup: { inline_keyboard: buttons } } : {}),
+      }),
     });
   } catch {
-    // уведомление не критично для сохранения заявки
+    /* уведомление не критично */
   }
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anon";
@@ -75,20 +89,31 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Некорректные данные" }, { status: 400 });
   }
 
-  // honeypot
-  if (body.website) return NextResponse.json({ ok: true });
+  if (body.website) return NextResponse.json({ ok: true }); // honeypot
 
   const type = body.type as LeadType;
   if (!VALID_TYPES.includes(type)) {
     return NextResponse.json({ error: "Некорректный тип заявки" }, { status: 400 });
   }
+
   const name = String(body.name ?? "").trim().slice(0, 120);
   const phone = String(body.phone ?? "").trim().slice(0, 40);
-  if (!name || !phone) {
-    return NextResponse.json({ error: "Укажите имя и телефон" }, { status: 400 });
+  if (!name) return NextResponse.json({ error: "Укажите имя" }, { status: 400 });
+  if (phone.replace(/[^\d]/g, "").length < 6) {
+    return NextResponse.json({ error: "Укажите корректный телефон" }, { status: 400 });
   }
 
-  const s = (v: unknown) => (v == null ? null : String(v).slice(0, 1000));
+  const s = (v: unknown) => (v == null || v === "" ? null : String(v).slice(0, 1000));
+
+  // Разделяем известные колонки и сценарные доп-поля (details).
+  const details: Record<string, string> = {};
+  for (const [k, v] of Object.entries(body)) {
+    if (k === "type" || k === "website" || k === "status") continue;
+    if (LEAD_COLUMN_FIELDS.has(k)) continue;
+    if (v === "" || v == null || v === false) continue;
+    details[k] = v === true ? "Да" : String(v).slice(0, 500);
+  }
+
   const lead = {
     type,
     status: "new",
@@ -104,25 +129,22 @@ export async function POST(req: Request) {
     color: s(body.color),
     quantity: s(body.quantity),
     budget: s(body.budget),
-    sell_channel: s(body.sellChannel),
-    need_branding: Boolean(body.needBranding),
-    need_label_pack: Boolean(body.needLabelPack),
     comment: s(body.comment),
+    details,
   };
 
-  // Сохранение в Supabase (если настроен)
   const sb = createServiceSupabase();
   if (sb) {
     const { error } = await sb.from("leads").insert(lead);
     if (error) {
       console.error("Lead insert error:", error.message);
-      // продолжаем — хотя бы отправим уведомление
+      // Не теряем заявку: всё равно отправляем уведомление в Telegram.
     }
   } else {
-    console.log("📥 Новая заявка (Supabase не настроен, демо-режим):", lead);
+    console.log("📥 Новая заявка (демо-режим):", lead);
   }
 
-  await notifyTelegram(body);
+  await notifyTelegram(lead, details);
 
   return NextResponse.json({ ok: true });
 }

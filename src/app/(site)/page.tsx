@@ -82,8 +82,34 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ADVANTAGES */}
+      {/* СЦЕНАРИИ — «Что вам нужно?» */}
       <section className="container-x py-16">
+        <div className="max-w-2xl">
+          <span className="section-eyebrow">Подберём под вашу задачу</span>
+          <h2 className="mt-3 font-display text-3xl font-bold sm:text-4xl">Что вам нужно?</h2>
+          <p className="mt-2 text-ink-muted">Выберите, кто вы — покажем подходящие условия, цены и форму заявки.</p>
+        </div>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { t: "Купить 1–3 вещи", d: "Розница для себя. Цена и быстрый заказ.", href: "/catalog", icon: "🛍️", cta: "В каталог" },
+            { t: "Купить оптом", d: "От 20 шт. Запросите актуальный прайс.", href: "/wholesale", icon: "📦", cta: "Оптовикам" },
+            { t: "Товар для маркетплейса", d: "WB, Ozon, Kaspi, Instagram. Подборка под площадку.", href: "/sellers", icon: "🛒", cta: "Селлерам" },
+            { t: "Отшив под бренд", d: "Партия с вашим логотипом и упаковкой.", href: "/manufacturing", icon: "🧵", cta: "Рассчитать" },
+          ].map((s) => (
+            <Link key={s.t} href={s.href} className="card group flex flex-col p-6 transition hover:-translate-y-1 hover:border-clay hover:shadow-lift">
+              <span className="text-3xl">{s.icon}</span>
+              <h3 className="mt-3 text-lg font-semibold leading-tight">{s.t}</h3>
+              <p className="mt-1.5 flex-1 text-sm text-ink-muted">{s.d}</p>
+              <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-clay">
+                {s.cta} <ArrowIcon className="h-4 w-4 transition group-hover:translate-x-1" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ADVANTAGES */}
+      <section className="container-x pb-8">
         <div className="max-w-2xl">
           <span className="section-eyebrow">Почему мы</span>
           <h2 className="mt-3 font-display text-3xl font-bold sm:text-4xl">Удобно покупать и выгодно заказывать</h2>

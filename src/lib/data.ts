@@ -69,6 +69,10 @@ function mapLead(r: any): Lead {
     needBranding: r.need_branding ?? undefined,
     needLabelPack: r.need_label_pack ?? undefined,
     comment: r.comment ?? undefined,
+    details: r.details ?? undefined,
+    manager: r.manager ?? undefined,
+    managerNotes: r.manager_notes ?? undefined,
+    lastContactAt: r.last_contact_at ?? undefined,
     createdAt: r.created_at ?? new Date().toISOString(),
   };
 }

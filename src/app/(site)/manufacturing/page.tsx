@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/page-hero";
-import { LeadForm } from "@/components/lead-form";
+import { ScenarioForm } from "@/components/scenario-form";
+import { SCENARIOS } from "@/lib/leads";
 
 export const metadata: Metadata = {
   title: "Отшив одежды в Кыргызстане — пошив крупной партии",
@@ -59,9 +60,9 @@ export default function ManufacturingPage() {
 
         <div className="card p-6 sm:p-8">
           <h2 className="font-display text-2xl font-bold">Заявка на отшив партии</h2>
-          <p className="mt-1 text-sm text-ink-muted">Опишите задачу — рассчитаем стоимость и сроки.</p>
+          <p className="mt-1 text-sm text-ink-muted">Опишите задачу — рассчитаем стоимость и сроки. Расчёт индивидуальный.</p>
           <div className="mt-6">
-            <LeadForm type="seller" />
+            <ScenarioForm leadType="manufacturing_request" fields={SCENARIOS.manufacturing.fields} submitLabel="Рассчитать отшив" />
           </div>
         </div>
       </section>

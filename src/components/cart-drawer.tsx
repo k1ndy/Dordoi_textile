@@ -41,7 +41,7 @@ export function CartDrawer({ whatsapp }: { whatsapp: string }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: "retail",
+          type: "retail_order",
           name,
           phone,
           country: fd.get("country"),

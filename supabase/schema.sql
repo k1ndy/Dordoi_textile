@@ -48,8 +48,12 @@ create index if not exists products_hidden_idx on public.products (hidden);
 -- ── Таблица заявок ──────────────────────────────────────────────────────────
 create table if not exists public.leads (
   id              uuid primary key default gen_random_uuid(),
-  type            text not null check (type in ('retail','wholesale','seller')),
-  status          text not null default 'new' check (status in ('new','in_progress','done','rejected')),
+  type            text not null check (type in (
+                    'retail_order','wholesale_request','large_wholesale_request',
+                    'marketplace_seller_request','manufacturing_request','general_contact')),
+  status          text not null default 'new' check (status in (
+                    'new','contacted','processing','quote_sent','negotiation',
+                    'prepaid','paid','in_production','shipped','completed','rejected')),
   name            text not null,
   phone           text not null,
   messenger       text,
@@ -66,9 +70,14 @@ create table if not exists public.leads (
   need_branding   boolean default false,
   need_label_pack boolean default false,
   comment         text,
+  details         jsonb default '{}'::jsonb,   -- сценарные доп-поля
+  manager         text,                         -- назначенный менеджер
+  manager_notes   text,                         -- заметки менеджера
+  last_contact_at timestamptz,                  -- дата последнего контакта
   created_at      timestamptz default now()
 );
 create index if not exists leads_status_idx on public.leads (status);
+create index if not exists leads_type_idx on public.leads (type);
 create index if not exists leads_created_idx on public.leads (created_at desc);
 
 -- ── Настройки сайта (одна строка id = 1) ────────────────────────────────────

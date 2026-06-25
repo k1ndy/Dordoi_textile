@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/page-hero";
-import { LeadForm } from "@/components/lead-form";
+import { ScenarioForm } from "@/components/scenario-form";
+import { SCENARIOS } from "@/lib/leads";
 
 export const metadata: Metadata = {
   title: "Одежда для селлеров и маркетплейсов — отшив под бренд",
@@ -54,9 +55,9 @@ export default function SellersPage() {
 
         <div className="card p-6 sm:p-8">
           <h2 className="font-display text-2xl font-bold">Заявка для селлеров</h2>
-          <p className="mt-1 text-sm text-ink-muted">Расскажите о себе и задаче — предложим решение и цены.</p>
+          <p className="mt-1 text-sm text-ink-muted">Расскажите о площадке и задаче — пришлём подборку и условия поставки.</p>
           <div className="mt-6">
-            <LeadForm type="seller" />
+            <ScenarioForm leadType="marketplace_seller_request" fields={SCENARIOS.marketplace.fields} submitLabel="Получить подборку" />
           </div>
         </div>
       </section>
