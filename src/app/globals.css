@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-body: "Golos Text", system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+    background-image:
+      radial-gradient(circle at 12% -10%, rgba(232, 161, 58, 0.10), transparent 42%),
+      radial-gradient(circle at 92% 4%, rgba(198, 61, 47, 0.08), transparent 40%);
+    background-attachment: fixed;
+  }
+  ::selection {
+    @apply bg-clay text-cream;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight text-ink;
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold
+           transition-all duration-200 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-clay text-cream shadow-card hover:bg-clay-dark;
+  }
+  .btn-dark {
+    @apply btn bg-ink text-cream hover:bg-ink-soft;
+  }
+  .btn-ghost {
+    @apply btn border border-ink/15 bg-cream-card text-ink hover:border-ink/40;
+  }
+  .btn-wa {
+    @apply btn bg-[#1f6f5c] text-cream hover:bg-[#185544];
+  }
+  .btn-tg {
+    @apply btn bg-[#2d8fd6] text-cream hover:bg-[#2479b3];
+  }
+
+  .card {
+    @apply rounded-xl2 border border-line bg-cream-card shadow-card;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-ink/12 bg-cream-card px-3 py-1 text-xs font-medium text-ink-soft;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-line bg-cream-card px-4 py-3 text-sm text-ink outline-none
+           transition focus:border-clay focus:ring-2 focus:ring-clay/15 placeholder:text-ink-muted/70;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-muted;
+  }
+
+  .section-eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-clay;
+  }
+}
+
+/* Тонкая полоска-орнамент в духе восточного рынка */
+.ornament-strip {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(198, 61, 47, 0.9) 0 10px,
+    rgba(232, 161, 58, 0.9) 10px 20px,
+    rgba(31, 111, 92, 0.9) 20px 30px
+  );
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
