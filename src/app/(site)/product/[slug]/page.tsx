@@ -6,9 +6,9 @@ import { getProductBySlug, getProducts, getSettings } from "@/lib/data";
 import { ProductGallery } from "@/components/product-gallery";
 import { Price } from "@/components/price";
 import { ProductCard } from "@/components/product-card";
+import { ProductBuyBox } from "@/components/product-buy-box";
 import { LeadForm } from "@/components/lead-form";
-import { WhatsAppIcon, TelegramIcon, CheckIcon } from "@/components/icons";
-import { waLink, tgLink } from "@/lib/links";
+import { CheckIcon } from "@/components/icons";
 
 type Params = { params: { slug: string } };
 
@@ -33,8 +33,6 @@ export default async function ProductPage({ params }: Params) {
 
   const [all, settings] = await Promise.all([getProducts(), getSettings()]);
   const related = all.filter((p) => p.categorySlug === product.categorySlug && p.id !== product.id).slice(0, 4);
-
-  const waText = `Здравствуйте! Интересует товар «${product.title}» с сайта ${settings.shopName}.`;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -92,24 +90,9 @@ export default async function ProductPage({ params }: Params) {
               </div>
             </div>
 
-            {/* Размеры / цвета */}
-            <div className="mt-6 space-y-4">
-              <div>
-                <p className="label">Размеры</p>
-                <div className="flex flex-wrap gap-2">
-                  {product.sizes.map((s) => (
-                    <span key={s} className="rounded-lg border border-line bg-cream-card px-3 py-1.5 text-sm font-medium">{s}</span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="label">Цвета</p>
-                <div className="flex flex-wrap gap-2">
-                  {product.colors.map((c) => (
-                    <span key={c} className="chip">{c}</span>
-                  ))}
-                </div>
-              </div>
+            {/* Выбор размера/цвета/кол-ва + корзина */}
+            <div className="mt-6">
+              <ProductBuyBox product={product} settings={settings} />
             </div>
 
             {/* Характеристики */}
@@ -121,17 +104,7 @@ export default async function ProductPage({ params }: Params) {
               <Spec k="Доставка" v={product.deliveryCountries.join(", ")} />
             </dl>
 
-            {/* CTA */}
-            <div className="mt-7 flex flex-wrap gap-3">
-              <a href="#order" className="btn-primary">Заказать товар</a>
-              <a href={waLink(settings.whatsapp, waText)} target="_blank" rel="noopener noreferrer" className="btn-wa">
-                <WhatsAppIcon className="h-4 w-4" /> WhatsApp
-              </a>
-              <a href={tgLink(settings.telegram)} target="_blank" rel="noopener noreferrer" className="btn-tg">
-                <TelegramIcon className="h-4 w-4" /> Telegram
-              </a>
-            </div>
-            <Link href="/manufacturing" className="mt-3 inline-block text-sm font-semibold text-clay hover:underline">
+            <Link href="/manufacturing" className="mt-6 inline-block text-sm font-semibold text-clay hover:underline">
               Заказать крупную партию / отшив под бренд →
             </Link>
 

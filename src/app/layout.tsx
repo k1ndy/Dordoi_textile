@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { Unbounded, Golos_Text } from "next/font/google";
 import "./globals.css";
 import { SiteProvider } from "@/components/providers";
+import { CartProvider } from "@/components/cart-provider";
 
 // Шрифты самостоятельно хостятся Next.js (скачиваются при сборке, отдаются с своего
 // домена с предзагрузкой) — убирает render-blocking запрос к Google Fonts и ускоряет FCP.
@@ -53,7 +54,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ru" className={`${display.variable} ${body.variable}`}>
       <body>
-        <SiteProvider>{children}</SiteProvider>
+        <SiteProvider>
+          <CartProvider>{children}</CartProvider>
+        </SiteProvider>
       </body>
     </html>
   );

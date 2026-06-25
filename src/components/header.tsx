@@ -6,6 +6,7 @@ import type { Category, SiteSettings } from "@/lib/types";
 import { useSite } from "./providers";
 import { CurrencySwitcher, LocaleSwitcher } from "./switchers";
 import { MenuIcon, CloseIcon, WhatsAppIcon, SearchIcon } from "./icons";
+import { CartButton } from "./cart-button";
 import { waLink } from "@/lib/links";
 
 const NAV = [
@@ -59,6 +60,7 @@ export function Header({ settings, categories }: { settings: SiteSettings; categ
           <Link href="/catalog" className="btn-ghost hidden sm:inline-flex !px-4 !py-2">
             <SearchIcon className="h-4 w-4" /> {t("cta.catalog")}
           </Link>
+          <CartButton />
           <button
             onClick={() => setOpen(true)}
             className="grid h-10 w-10 place-items-center rounded-full border border-ink/15 lg:hidden"

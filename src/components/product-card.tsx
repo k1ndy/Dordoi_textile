@@ -3,13 +3,33 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Product, SiteSettings } from "@/lib/types";
+import { useState } from "react";
 import { useSite } from "./providers";
+import { useCart } from "./cart-provider";
 import { waLink } from "@/lib/links";
-import { WhatsAppIcon } from "./icons";
+import { WhatsAppIcon, CartIcon, CheckIcon } from "./icons";
 
 export function ProductCard({ product, settings }: { product: Product; settings: SiteSettings }) {
   const { t, price } = useSite();
+  const { add } = useCart();
+  const [added, setAdded] = useState(false);
   const href = `/product/${product.slug}`;
+
+  function quickAdd() {
+    add({
+      productId: product.id,
+      slug: product.slug,
+      title: product.title,
+      image: product.images[0] ?? "",
+      priceRetail: product.priceRetail,
+      priceWholesale: product.priceWholesale,
+      minWholesale: product.minWholesale,
+      size: product.sizes[0],
+      color: product.colors[0],
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  }
   const waText = `Здравствуйте! Интересует товар «${product.title}» с сайта Dordoy Textile.`;
 
   return (
@@ -60,7 +80,13 @@ export function ProductCard({ product, settings }: { product: Product; settings:
             </div>
           </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={quickAdd}
+            className={`btn mt-3 w-full !px-3 !py-2 text-xs ${added ? "bg-pine text-cream" : "btn-primary"}`}
+          >
+            {added ? <><CheckIcon className="h-4 w-4" /> Добавлено</> : <><CartIcon className="h-4 w-4" /> В корзину</>}
+          </button>
+          <div className="mt-2 grid grid-cols-2 gap-2">
             <Link href={`${href}#order`} className="btn-dark !px-3 !py-2 text-xs">{t("cta.order")}</Link>
             <a href={waLink(settings.whatsapp, waText)} target="_blank" rel="noopener noreferrer" className="btn-wa !px-3 !py-2 text-xs">
               <WhatsAppIcon className="h-4 w-4" /> WhatsApp

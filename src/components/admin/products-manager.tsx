@@ -254,12 +254,23 @@ function ProductForm({ initial, categories, onCancel, onSave }: {
 
           {/* Images */}
           <div className="sm:col-span-2">
-            <label className="label">Фото товара</label>
+            <label className="label">Фото товара <span className="font-normal normal-case text-ink-muted">— первое фото показывается как обложка</span></label>
             <div className="flex flex-wrap gap-2">
               {p.images.map((src, i) => (
-                <div key={i} className="relative h-20 w-20 overflow-hidden rounded-lg border border-line">
+                <div key={i} className={`group relative h-24 w-20 overflow-hidden rounded-lg border-2 ${i === 0 ? "border-clay" : "border-line"}`}>
                   <Image src={src} alt="" fill sizes="80px" className="object-cover" unoptimized />
-                  <button onClick={() => set({ images: p.images.filter((_, idx) => idx !== i) })} className="absolute right-0 top-0 grid h-5 w-5 place-items-center bg-ink/70 text-xs text-cream">×</button>
+                  <button onClick={() => set({ images: p.images.filter((_, idx) => idx !== i) })} className="absolute right-0 top-0 grid h-5 w-5 place-items-center bg-ink/70 text-xs text-cream hover:bg-clay" title="Удалить фото">×</button>
+                  {i === 0 ? (
+                    <span className="absolute inset-x-0 bottom-0 bg-clay py-0.5 text-center text-[10px] font-semibold text-cream">★ Обложка</span>
+                  ) : (
+                    <button
+                      onClick={() => set({ images: [src, ...p.images.filter((_, idx) => idx !== i)] })}
+                      className="absolute inset-x-0 bottom-0 bg-ink/75 py-0.5 text-center text-[10px] text-cream hover:bg-clay"
+                      title="Сделать обложкой"
+                    >
+                      Сделать обложкой
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
