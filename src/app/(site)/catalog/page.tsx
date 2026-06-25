@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getCategories, getProducts, getSettings } from "@/lib/data";
 import { CatalogClient } from "@/components/catalog-client";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Каталог одежды с рынка Дордой — опт и розница",
   description:

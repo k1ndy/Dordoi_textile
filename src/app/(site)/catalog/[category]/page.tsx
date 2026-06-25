@@ -4,6 +4,14 @@ import Link from "next/link";
 import { getCategories, getProducts, getSettings } from "@/lib/data";
 import { CatalogClient } from "@/components/catalog-client";
 
+export const revalidate = 60;
+
+// Пред-рендер всех категорий на этапе сборки (отдаются с CDN).
+export async function generateStaticParams() {
+  const categories = await getCategories();
+  return categories.map((c) => ({ category: c.slug }));
+}
+
 type Params = { params: { category: string } };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {

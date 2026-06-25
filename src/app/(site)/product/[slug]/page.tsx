@@ -9,6 +9,14 @@ import { LeadForm } from "@/components/lead-form";
 import { WhatsAppIcon, TelegramIcon, CheckIcon } from "@/components/icons";
 import { waLink, tgLink } from "@/lib/links";
 
+export const revalidate = 60;
+
+// Пред-рендер всех товаров на этапе сборки (отдаются с CDN, обновляются по ISR).
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products.map((p) => ({ slug: p.slug }));
+}
+
 type Params = { params: { slug: string } };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {

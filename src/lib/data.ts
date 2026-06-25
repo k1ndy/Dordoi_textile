@@ -1,7 +1,7 @@
 import "server-only";
 import type { Category, Lead, Product, SiteSettings } from "./types";
 import { mockCategories, mockLeads, mockProducts, mockSettings } from "./mock";
-import { createServerSupabase } from "./supabase/server";
+import { createPublicSupabase } from "./supabase/public";
 import { isSupabaseConfigured } from "./supabase/config";
 
 // ── Мапперы строк БД (snake_case) → типы приложения (camelCase) ──────────────
@@ -75,7 +75,7 @@ function mapLead(r: any): Lead {
 
 // ── Публичные read-функции ──────────────────────────────────────────────────
 export async function getCategories(): Promise<Category[]> {
-  const sb = createServerSupabase();
+  const sb = createPublicSupabase();
   if (sb) {
     const { data, error } = await sb
       .from("categories")
@@ -88,7 +88,7 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const sb = createServerSupabase();
+  const sb = createPublicSupabase();
   if (sb) {
     const { data, error } = await sb
       .from("products")
@@ -101,7 +101,7 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const sb = createServerSupabase();
+  const sb = createPublicSupabase();
   if (sb) {
     const { data, error } = await sb.from("products").select("*").eq("slug", slug).single();
     if (!error && data) return mapProduct(data);
@@ -111,7 +111,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 }
 
 export async function getSettings(): Promise<SiteSettings> {
-  const sb = createServerSupabase();
+  const sb = createPublicSupabase();
   if (sb) {
     const { data } = await sb.from("settings").select("*").eq("id", 1).single();
     if (data) {
@@ -134,7 +134,7 @@ export async function getSettings(): Promise<SiteSettings> {
 
 // Заявки — читаются только в админ-панели (через защищённый layout).
 export async function getLeads(): Promise<Lead[]> {
-  const sb = createServerSupabase();
+  const sb = createPublicSupabase();
   if (sb) {
     const { data, error } = await sb
       .from("leads")

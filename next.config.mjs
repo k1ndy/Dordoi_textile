@@ -37,6 +37,8 @@ const nextConfig = {
   poweredByHeader: false, // убираем X-Powered-By: Next.js
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 86400, // кэшируем оптимизированные картинки на сутки
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

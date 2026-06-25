@@ -21,7 +21,6 @@ export function ProductCard({ product, settings }: { product: Product; settings:
           fill
           sizes="(max-width: 768px) 50vw, 25vw"
           className="object-cover transition duration-500 group-hover:scale-105"
-          unoptimized
         />
         <div className="absolute left-3 top-3 flex flex-col gap-1.5">
           {product.isNew && <span className="rounded-full bg-pine px-2.5 py-1 text-[11px] font-semibold text-cream">{t("common.new")}</span>}

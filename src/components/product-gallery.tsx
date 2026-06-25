@@ -10,7 +10,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
   return (
     <div className="flex flex-col gap-3">
       <div className="relative aspect-[4/5] overflow-hidden rounded-xl2 border border-line bg-cream-deep">
-        <Image src={list[active]} alt={title} fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" unoptimized priority />
+        <Image src={list[active]} alt={title} fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" priority />
       </div>
       {list.length > 1 && (
         <div className="grid grid-cols-4 gap-3">
@@ -22,7 +22,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
                 i === active ? "border-clay" : "border-line hover:border-ink/40"
               }`}
             >
-              <Image src={src} alt={`${title} фото ${i + 1}`} fill sizes="120px" className="object-cover" unoptimized />
+              <Image src={src} alt={`${title} фото ${i + 1}`} fill sizes="120px" className="object-cover" />
             </button>
           ))}
         </div>

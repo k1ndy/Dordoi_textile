@@ -5,6 +5,9 @@ import { ProductCard } from "@/components/product-card";
 import { ArrowIcon, WhatsAppIcon } from "@/components/icons";
 import { waLink } from "@/lib/links";
 
+// ISR: страница кэшируется и пере-генерируется не чаще раза в 60 сек.
+export const revalidate = 60;
+
 const ADVANTAGES = [
   { t: "Прямые поставки с Дордоя", d: "Берём товар напрямую у производителей рынка — без лишних наценок." },
   { t: "Опт и розница", d: "Покупайте от 1 штуки или крупными партиями по оптовым ценам." },
@@ -57,7 +60,7 @@ export default async function HomePage() {
           <div className="animate-fade-up [animation-delay:120ms]">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-4">
-                <HeroImg src="https://loremflickr.com/600/800/fashion,clothes?lock=31" className="aspect-[3/4]" />
+                <HeroImg src="https://loremflickr.com/600/800/fashion,clothes?lock=31" className="aspect-[3/4]" priority />
                 <HeroImg src="https://loremflickr.com/600/600/tshirt?lock=32" className="aspect-square" />
               </div>
               <div className="space-y-4 pt-8">
@@ -195,10 +198,17 @@ const MARQUEE = [
   "Быстрая связь в WhatsApp",
 ];
 
-function HeroImg({ src, className }: { src: string; className?: string }) {
+function HeroImg({ src, className, priority }: { src: string; className?: string; priority?: boolean }) {
   return (
     <div className={`relative overflow-hidden rounded-xl2 border border-line bg-cream-deep shadow-card ${className}`}>
-      <Image src={src} alt="Одежда с рынка Дордой" fill sizes="(max-width:1024px) 50vw, 25vw" className="object-cover" unoptimized />
+      <Image
+        src={src}
+        alt="Одежда с рынка Дордой"
+        fill
+        sizes="(max-width:1024px) 50vw, 25vw"
+        className="object-cover"
+        priority={priority}
+      />
     </div>
   );
 }
