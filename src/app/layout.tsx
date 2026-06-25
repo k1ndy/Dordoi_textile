@@ -1,7 +1,23 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { Unbounded, Golos_Text } from "next/font/google";
 import "./globals.css";
 import { SiteProvider } from "@/components/providers";
+
+// Шрифты самостоятельно хостятся Next.js (скачиваются при сборке, отдаются с своего
+// домена с предзагрузкой) — убирает render-blocking запрос к Google Fonts и ускоряет FCP.
+const display = Unbounded({
+  subsets: ["latin", "cyrillic"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+const body = Golos_Text({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+  display: "swap",
+});
 
 // Чтение nonce из заголовков переводит рендер в динамический режим —
 // это обязательно, чтобы Next.js подставил nonce в свои inline-скрипты под строгий CSP.
@@ -35,15 +51,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   headers().get("x-nonce"); // переводит рендер в динамику для корректной работы nonce-CSP
   return (
-    <html lang="ru">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="ru" className={`${display.variable} ${body.variable}`}>
       <body>
         <SiteProvider>{children}</SiteProvider>
       </body>

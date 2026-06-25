@@ -2,10 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-display: "Unbounded", system-ui, sans-serif;
-  --font-body: "Golos Text", system-ui, sans-serif;
-}
+/* Переменные --font-display / --font-body задаёт next/font на элементе <html>.
+   В tailwind.config к ним уже добавлен системный фолбэк. */
 
 @layer base {
   * {
