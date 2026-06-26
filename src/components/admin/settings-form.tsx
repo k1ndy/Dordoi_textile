@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import type { SiteSettings } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
@@ -20,6 +21,7 @@ export function SettingsForm({ initial }: { initial: SiteSettings }) {
         shop_name: s.shopName, logo_url: s.logoUrl, whatsapp: s.whatsapp, telegram: s.telegram,
         instagram: s.instagram, address: s.address, delivery_countries: s.deliveryCountries,
         payment_terms: s.paymentTerms, delivery_terms: s.deliveryTerms, hero_text: s.heroText,
+        hero_images: s.heroImages,
       });
     }
     setSaving(false);
@@ -49,12 +51,67 @@ export function SettingsForm({ initial }: { initial: SiteSettings }) {
 
       <Group title="Главная страница">
         <Area label="Текст в шапке (hero)" value={s.heroText} onChange={(v) => set({ heroText: v })} />
+        <div>
+          <label className="label">Фото в шапке (4 шт)</label>
+          <p className="-mt-1 mb-2 text-xs text-ink-muted">Вставьте ссылку на фото или загрузите файл. Порядок: слева сверху → справа снизу.</p>
+          <HeroImagesEditor value={s.heroImages} onChange={(imgs) => set({ heroImages: imgs })} />
+        </div>
       </Group>
 
       <div className="flex items-center gap-4">
         <button onClick={save} disabled={saving} className="btn-primary">{saving ? "Сохраняем..." : "Сохранить настройки"}</button>
         {saved && <span className="text-sm font-semibold text-pine">✓ Сохранено</span>}
       </div>
+    </div>
+  );
+}
+
+function HeroImagesEditor({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+  const [uploading, setUploading] = useState<number | null>(null);
+  const slots = Array.from({ length: 4 }, (_, i) => value?.[i] ?? "");
+
+  function setSlot(i: number, url: string) {
+    const next = [...slots];
+    next[i] = url;
+    onChange(next);
+  }
+
+  async function upload(i: number, file: File) {
+    if (!isSupabaseConfigured) {
+      alert("Загрузка файлов доступна после подключения Supabase. Пока вставьте ссылку на фото.");
+      return;
+    }
+    setUploading(i);
+    const sb = createClient()!;
+    const path = `hero/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+    const { error } = await sb.storage.from("products").upload(path, file, { upsert: false });
+    if (!error) {
+      const { data } = sb.storage.from("products").getPublicUrl(path);
+      setSlot(i, data.publicUrl);
+    } else {
+      alert("Не удалось загрузить фото: " + error.message);
+    }
+    setUploading(null);
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {slots.map((src, i) => (
+        <div key={i} className="space-y-2">
+          <div className="relative aspect-[3/4] overflow-hidden rounded-lg border border-line bg-cream-deep">
+            {src ? (
+              <Image src={src} alt={`Фото ${i + 1}`} fill sizes="160px" className="object-cover" unoptimized />
+            ) : (
+              <div className="grid h-full place-items-center text-xs text-ink-muted">Фото {i + 1}</div>
+            )}
+          </div>
+          <input className="input !py-1.5 text-xs" placeholder="Ссылка на фото" value={src} onChange={(e) => setSlot(i, e.target.value)} />
+          <label className="btn-ghost w-full cursor-pointer !py-1.5 text-xs">
+            {uploading === i ? "Загрузка..." : "Загрузить"}
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(i, f); }} />
+          </label>
+        </div>
+      ))}
     </div>
   );
 }

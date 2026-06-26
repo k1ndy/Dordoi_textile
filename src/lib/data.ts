@@ -133,6 +133,7 @@ async function fetchSettings(): Promise<SiteSettings> {
         paymentTerms: data.payment_terms ?? mockSettings.paymentTerms,
         deliveryTerms: data.delivery_terms ?? mockSettings.deliveryTerms,
         heroText: data.hero_text ?? mockSettings.heroText,
+        heroImages: (data.hero_images?.length ? data.hero_images : mockSettings.heroImages),
       };
     }
   }

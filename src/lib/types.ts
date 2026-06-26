@@ -103,4 +103,5 @@ export interface SiteSettings {
   paymentTerms: string;
   deliveryTerms: string;
   heroText: string;
+  heroImages: string[]; // фото в шапке главной (4 шт)
 }

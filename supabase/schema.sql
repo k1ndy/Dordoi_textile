@@ -93,6 +93,7 @@ create table if not exists public.settings (
   payment_terms      text,
   delivery_terms     text,
   hero_text          text,
+  hero_images        text[] default '{}',
   constraint settings_singleton check (id = 1)
 );
 

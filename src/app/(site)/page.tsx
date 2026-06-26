@@ -24,6 +24,15 @@ export default async function HomePage() {
   const featured = products.filter((p) => p.isNew || p.isHit).slice(0, 8);
   const showcase = (featured.length ? featured : products).slice(0, 8);
 
+  // 4 фото в шапке: из настроек, с запасными значениями для пустых слотов
+  const FALLBACK_HERO = [
+    "https://loremflickr.com/600/800/fashion,clothes?lock=31",
+    "https://loremflickr.com/600/600/tshirt?lock=32",
+    "https://loremflickr.com/600/600/hoodie?lock=33",
+    "https://loremflickr.com/600/800/dress,fashion?lock=34",
+  ];
+  const heroImages = Array.from({ length: 4 }, (_, i) => settings.heroImages?.[i] || FALLBACK_HERO[i]);
+
   return (
     <>
       {/* HERO */}
@@ -57,12 +66,12 @@ export default async function HomePage() {
           <div className="animate-fade-up [animation-delay:120ms]">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-4">
-                <HeroImg src="https://loremflickr.com/600/800/fashion,clothes?lock=31" className="aspect-[3/4]" priority />
-                <HeroImg src="https://loremflickr.com/600/600/tshirt?lock=32" className="aspect-square" />
+                <HeroImg src={heroImages[0]} className="aspect-[3/4]" priority />
+                <HeroImg src={heroImages[1]} className="aspect-square" />
               </div>
               <div className="space-y-4 pt-8">
-                <HeroImg src="https://loremflickr.com/600/600/hoodie?lock=33" className="aspect-square" />
-                <HeroImg src="https://loremflickr.com/600/800/dress,fashion?lock=34" className="aspect-[3/4]" />
+                <HeroImg src={heroImages[2]} className="aspect-square" />
+                <HeroImg src={heroImages[3]} className="aspect-[3/4]" />
               </div>
             </div>
           </div>

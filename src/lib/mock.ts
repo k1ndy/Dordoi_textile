@@ -16,6 +16,12 @@ export const mockSettings: SiteSettings = {
   deliveryTerms:
     "Отправка через проверенные транспортные компании (Карго, СДЭК и др.). Перед отправкой высылаем фото и видео товара.",
   heroText: "Одежда с рынка Дордой оптом и в розницу для стран СНГ",
+  heroImages: [
+    "https://loremflickr.com/600/800/fashion,clothes?lock=31",
+    "https://loremflickr.com/600/600/tshirt?lock=32",
+    "https://loremflickr.com/600/600/hoodie?lock=33",
+    "https://loremflickr.com/600/800/dress,fashion?lock=34",
+  ],
 };
 
 export const mockCategories: Category[] = [
